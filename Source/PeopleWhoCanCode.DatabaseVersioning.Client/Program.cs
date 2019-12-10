@@ -11,27 +11,26 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
 
         static void Main(string[] args)
         {
-            var options = new Options();
-
-            if (Parser.Default.ParseArguments(args, options))
-            {
-                // Bootstrap client.
-                StructureMapConfigurer.Initialize(options.ConnectionString);
-
-                // Run versioning service.
-                var versioningService = StructureMapConfigurer.GetVersioningService(options.Provider);
-
-                try
+            Parser.Default.ParseArguments(args)
+                .WithParsed<Options>(options =>
                 {
-                    versioningService.Run(options.ChangeScriptsDirectory);
-                }
-                catch (Exception ex)
-                {
-                    Log.Error("Versioning service stopped due to an exception being thrown.", ex);
-                }
+                    // Bootstrap client.
+                    StructureMapConfigurer.Initialize(options.ConnectionString);
 
-                Log.Info("Done!");
-            }
+                    // Run versioning service.
+                    var versioningService = StructureMapConfigurer.GetVersioningService(options.Provider);
+
+                    try
+                    {
+                        versioningService.Run(options.ChangeScriptsDirectory);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Error("Versioning service stopped due to an exception being thrown.", ex);
+                    }
+
+                    Log.Info("Done!");
+                });
         }
     }
 }

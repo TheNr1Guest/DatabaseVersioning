@@ -13,14 +13,5 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
 
         [Option('p', "provider", Required = true, HelpText = "The provider to be used, can be: MySQL")]
         public string Provider { get; set; }
-
-        [ParserState]
-        public IParserState LastParserState { get; set; }
-
-        [HelpOption]
-        public string GetUsage()
-        {
-            return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-        }
     }
 }
