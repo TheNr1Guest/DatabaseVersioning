@@ -4,17 +4,15 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using log4net;
 using PeopleWhoCanCode.DatabaseVersioning.Comparers;
 using PeopleWhoCanCode.DatabaseVersioning.Exceptions;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
+using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
     public class ChangeScriptProvider
     {
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
         public IEnumerable<ChangeScript> FindAll(string databasePath, Version latestVersion, int latestChangeScriptNumber)
         {
             IList<ChangeScript> changeScripts = new List<ChangeScript>();
@@ -48,7 +46,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                                 }
                                 else
                                 {
-                                    Log.DebugFormat("Ignoring change script #{0} of version {1}", changeScriptNumber, version);
+                                    Log.Debug(string.Format("Ignoring change script #{0} of version {1}", changeScriptNumber, version));
                                 }
                             }
                             else
@@ -59,7 +57,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                     }
                     else
                     {
-                        Log.DebugFormat("Ignoring version {0}", version);
+                        Log.Debug($"Ignoring version {version}");
                     }
                 }
                 else

@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Reflection;
 using CommandLine;
-using log4net;
+using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning.Client
 {
     public class Program
     {
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
         static void Main(string[] args)
         {
-            Parser.Default.ParseArguments(args)
-                .WithParsed<Options>(options =>
+            Parser.Default.ParseArguments<Options>(args)
+                .WithParsed(options =>
                 {
                     // Bootstrap client.
+                    Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
+                                                          .WriteTo.Console()
+                                                          .CreateLogger();
+
                     StructureMapConfigurer.Initialize(options.ConnectionString);
 
                     // Run versioning service.
@@ -29,7 +30,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
                         Log.Error("Versioning service stopped due to an exception being thrown.", ex);
                     }
 
-                    Log.Info("Done!");
+                    Log.Information("Done!");
                 });
         }
     }

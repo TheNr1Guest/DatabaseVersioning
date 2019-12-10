@@ -1,12 +1,9 @@
-﻿using System.Reflection;
-using log4net;
+﻿using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
     public class DatabaseInitializer
     {
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
         private readonly IDbProvider _provider;
 
         public DatabaseInitializer(IDbProvider provider)
@@ -25,7 +22,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
             // Check if the change log table exists, if not we need to create it.
             CreateChangeLogTableIfNotExists();
 
-            Log.InfoFormat("Database '{0}' has been initialized.", database);
+            Log.Information($"Database '{database}' has been initialized.");
         }
 
         private void CreateChangeLogTableIfNotExists()

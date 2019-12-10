@@ -2,15 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Transactions;
-using log4net;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
+using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
     public class ChangeScriptApplier
     {
-        private static readonly ILog Log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
-
         private readonly IDbProvider _provider;
 
         public ChangeScriptApplier(IDbProvider provider)
@@ -35,9 +33,9 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                 try
                 {
                     _provider.ApplyChangeScript(changeScript);
-                    Log.InfoFormat("Database script #{0} of version {1} has been applied.",
+                    Log.Information(string.Format("Database script #{0} of version {1} has been applied.",
                         changeScript.Number,
-                        changeScript.Version);
+                        changeScript.Version));
                     transaction.Complete();
                 }
                 catch (Exception ex)

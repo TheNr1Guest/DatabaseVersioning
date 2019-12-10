@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.181
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeopleWhoCanCode.DatabaseVersioning.Client", "Source\PeopleWhoCanCode.DatabaseVersioning.Client\PeopleWhoCanCode.DatabaseVersioning.Client.csproj", "{D071065D-BD8B-47DF-95F6-B987A21213B5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PeopleWhoCanCode.DatabaseVersioning", "Source\PeopleWhoCanCode.DatabaseVersioning\PeopleWhoCanCode.DatabaseVersioning.csproj", "{D8FC19D1-C4F1-4DE2-819C-668C22546C3C}"
@@ -28,5 +30,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {76142437-7B85-42E2-96E0-4221A982C7C7}
 	EndGlobalSection
 EndGlobal

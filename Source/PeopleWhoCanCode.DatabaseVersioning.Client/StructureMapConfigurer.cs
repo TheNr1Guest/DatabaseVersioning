@@ -2,7 +2,6 @@
 using System.Linq;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
 using StructureMap;
-using StructureMap.Graph;
 
 namespace PeopleWhoCanCode.DatabaseVersioning.Client
 {
