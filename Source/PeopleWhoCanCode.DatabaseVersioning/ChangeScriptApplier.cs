@@ -33,9 +33,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                 try
                 {
                     _provider.ApplyChangeScript(changeScript);
-                    Log.Information(string.Format("Database script #{0} of version {1} has been applied.",
-                        changeScript.Number,
-                        changeScript.Version));
+                    Log.Information($"Database script #{changeScript.Number} of version {changeScript.Version} has been applied.");
                     transaction.Complete();
                 }
                 catch (Exception ex)

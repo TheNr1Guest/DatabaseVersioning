@@ -62,10 +62,9 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
             {
                 command.Parameters.AddWithValue("?DatabaseName", name);
 
-                using (var reader = command.ExecuteReader())
-                {
-                    exists = reader.HasRows;
-                }
+                using var reader = command.ExecuteReader();
+
+                exists = reader.HasRows;
             }
 
             return exists;
@@ -73,18 +72,16 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void CreateDatabase(string name)
         {
-            using (var command = new MySqlCommand(DatabaseCreationQuery.Replace("?DatabaseName", name), _connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(DatabaseCreationQuery.Replace("?DatabaseName", name), _connection);
+
+            command.ExecuteNonQuery();
         }
 
         public void SelectDatabase(string name)
         {
-            using (var command = new MySqlCommand(DatabaseSelectionQuery.Replace("?DatabaseName", name), _connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(DatabaseSelectionQuery.Replace("?DatabaseName", name), _connection);
+
+            command.ExecuteNonQuery();
         }
 
         public bool DoesChangeLogTableExist()
@@ -93,10 +90,9 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
             using (var command = new MySqlCommand(ChangeLogTableExistsQuery, _connection))
             {
-                using (var reader = command.ExecuteReader())
-                {
-                    exists = reader.HasRows;
-                }
+                using var reader = command.ExecuteReader();
+
+                exists = reader.HasRows;
             }
 
             return exists;
@@ -104,10 +100,9 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void CreateChangeLogTable()
         {
-            using (var command = new MySqlCommand(ChangeLogTableCreationQuery, _connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(ChangeLogTableCreationQuery, _connection);
+
+            command.ExecuteNonQuery();
         }
 
         public ChangeLogRecord FindLatestChangeLogRecord()
@@ -116,16 +111,16 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
             using (var command = new MySqlCommand(ChangeLogSelectLatestQuery, _connection))
             {
-                using (var reader = command.ExecuteReader())
+                using var reader = command.ExecuteReader();
+
+                if (reader.HasRows)
                 {
-                    if (reader.HasRows)
-                    {
-                        reader.Read();
-                        changeLogRecord = new ChangeLogRecord(
-                            Version.Parse(reader.GetString("Version")), 
-                            reader.GetInt32("Number"), 
-                            reader.IsDBNull(reader.GetOrdinal("Error")) ? null : reader.GetString("Error"));
-                    }
+                    reader.Read();
+
+                    changeLogRecord = new ChangeLogRecord(
+                        Version.Parse(reader.GetString("Version")), 
+                        reader.GetInt32("Number"), 
+                        reader.IsDBNull(reader.GetOrdinal("Error")) ? null : reader.GetString("Error"));
                 }
             }
 
@@ -134,32 +129,31 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void ApplyChangeScript(ChangeScript changeScript)
         {
-            using (var command = new MySqlCommand(changeScript.Content, _connection))
+            using var command = new MySqlCommand(changeScript.Content, _connection)
             {
-                command.CommandTimeout = 3600;
-                command.ExecuteNonQuery();
-            }
+                CommandTimeout = 3600
+            };
+
+            command.ExecuteNonQuery();
         }
 
         public void DeleteChangeLogRecord(ChangeLogRecord changeLogRecord)
         {
-            using (var command = new MySqlCommand(ChangeLogDeleteQuery, _connection))
-            {
-                command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
-                command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(ChangeLogDeleteQuery, _connection);
+
+            command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
+            command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
+            command.ExecuteNonQuery();
         }
 
         public void InsertChangeLogRecord(ChangeLogRecord changeLogRecord)
         {
-            using (var command = new MySqlCommand(ChangeLogInsertQuery, _connection))
-            {
-                command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
-                command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
-                command.Parameters.AddWithValue("?Error", changeLogRecord.Error);
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(ChangeLogInsertQuery, _connection);
+
+            command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
+            command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
+            command.Parameters.AddWithValue("?Error", changeLogRecord.Error);
+            command.ExecuteNonQuery();
         }
     }
 }

@@ -13,8 +13,10 @@ namespace PeopleWhoCanCode.DatabaseVersioning
 
         public void Initialize(string database)
         {
+            Log.Debug($"Initializing database '{database}'.");
+
             // Create database if needed.
-            CreateDatebaseIfNotExists(database);
+            CreateDatabaseIfNotExists(database);
 
             // Select database.
             SelectDatabase(database);
@@ -38,7 +40,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
             _provider.SelectDatabase(database);
         }
 
-        private void CreateDatebaseIfNotExists(string database)
+        private void CreateDatabaseIfNotExists(string database)
         {
             if (!_provider.DoesDatabaseExist(database))
             {

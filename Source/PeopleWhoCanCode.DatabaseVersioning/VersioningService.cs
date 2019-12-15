@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
+using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
@@ -29,7 +30,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
 
             var databases = FindAllDatabases(path);
 
-            foreach (string database in databases)
+            foreach (var database in databases)
             {
                 ApplyChangesToDatabase(path, database);
             }
@@ -54,11 +55,9 @@ namespace PeopleWhoCanCode.DatabaseVersioning
 
         private IEnumerable<ChangeScript> FindAllChangeScripts(string path, string database, ChangeLogRecord latestChangeLogRecord)
         {
-            var changeScripts = _changeScripts.FindAll(
-                Path.Combine(path, database),
-                latestChangeLogRecord.Version, 
-                latestChangeLogRecord.Number);
-            return changeScripts;
+            return _changeScripts.FindAll(Path.Combine(path, database),
+                                          latestChangeLogRecord.Version,
+                                          latestChangeLogRecord.Number);
         }
 
         private static IEnumerable<string> FindAllDatabases(string path)
