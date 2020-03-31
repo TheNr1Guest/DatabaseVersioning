@@ -27,7 +27,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
                     }
                     catch (Exception ex)
                     {
-                        Log.Error("Versioning service stopped due to an exception being thrown.", ex);
+                        Log.Error(ex, "Versioning service stopped due to an exception being thrown.");
                     }
 
                     Log.Information("Done!");
