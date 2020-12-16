@@ -3,15 +3,22 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using PeopleWhoCanCode.DatabaseVersioning.Comparers;
 using PeopleWhoCanCode.DatabaseVersioning.Exceptions;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
-using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
     public class ChangeScriptProvider
     {
+        private readonly ILogger<ChangeScriptProvider> _logger;
+
+        public ChangeScriptProvider(ILogger<ChangeScriptProvider> logger)
+        {
+            _logger = logger;
+        }
+
         public IEnumerable<ChangeScript> FindAll(string databasePath, Version latestVersion, int latestChangeScriptNumber)
         {
             IList<ChangeScript> changeScripts = new List<ChangeScript>();
@@ -42,7 +49,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                                 }
                                 else
                                 {
-                                    Log.Debug($"Ignoring change script #{changeScriptNumber} of version {version}");
+                                    _logger.LogInformation($"Ignoring change script #{changeScriptNumber} of version {version}");
                                 }
                             }
                             else
@@ -53,7 +60,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                     }
                     else
                     {
-                        Log.Debug($"Ignoring version {version}");
+                        _logger.LogInformation($"Ignoring version {version}");
                     }
                 }
                 else

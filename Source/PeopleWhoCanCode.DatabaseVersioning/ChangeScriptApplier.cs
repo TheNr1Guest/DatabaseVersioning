@@ -1,19 +1,20 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Transactions;
+using Microsoft.Extensions.Logging;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
-using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
     public class ChangeScriptApplier
     {
         private readonly IDbProvider _provider;
+        private readonly ILogger<ChangeScriptApplier> _logger;
 
-        public ChangeScriptApplier(IDbProvider provider)
+        public ChangeScriptApplier(IDbProvider provider, ILogger<ChangeScriptApplier> logger)
         {
             _provider = provider;
+            _logger = logger;
         }
 
         public void Apply(IEnumerable<ChangeScript> changeScripts)
@@ -33,7 +34,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                 try
                 {
                     _provider.ApplyChangeScript(changeScript);
-                    Log.Information($"Database script #{changeScript.Number} of version {changeScript.Version} has been applied.");
+                    _logger.LogInformation($"Database script #{changeScript.Number} of version {changeScript.Version} has been applied.");
                     transaction.Complete();
                 }
                 catch (Exception ex)

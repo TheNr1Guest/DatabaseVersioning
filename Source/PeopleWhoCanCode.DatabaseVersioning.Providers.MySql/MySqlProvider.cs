@@ -38,10 +38,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void Connect()
         {
-            if (_connection == null)
-            {
-                _connection = new MySqlConnection(ConnectionString);
-            }
+            _connection ??= new MySqlConnection(ConnectionString);
 
             if (_connection.State != ConnectionState.Open)
             {
@@ -58,14 +55,12 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
         {
             bool exists;
 
-            using (var command = new MySqlCommand(DatabaseExistsQuery, _connection))
-            {
-                command.Parameters.AddWithValue("?DatabaseName", name);
+            using var command = new MySqlCommand(DatabaseExistsQuery, _connection);
+            command.Parameters.AddWithValue("?DatabaseName", name);
 
-                using var reader = command.ExecuteReader();
+            using var reader = command.ExecuteReader();
 
-                exists = reader.HasRows;
-            }
+            exists = reader.HasRows;
 
             return exists;
         }
@@ -88,12 +83,10 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
         {
             bool exists;
 
-            using (var command = new MySqlCommand(ChangeLogTableExistsQuery, _connection))
-            {
-                using var reader = command.ExecuteReader();
+            using var command = new MySqlCommand(ChangeLogTableExistsQuery, _connection);
+            using var reader = command.ExecuteReader();
 
-                exists = reader.HasRows;
-            }
+            exists = reader.HasRows;
 
             return exists;
         }
@@ -109,19 +102,17 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
         {
             ChangeLogRecord changeLogRecord = null;
 
-            using (var command = new MySqlCommand(ChangeLogSelectLatestQuery, _connection))
+            using var command = new MySqlCommand(ChangeLogSelectLatestQuery, _connection);
+            using var reader = command.ExecuteReader();
+
+            if (reader.HasRows)
             {
-                using var reader = command.ExecuteReader();
+                reader.Read();
 
-                if (reader.HasRows)
-                {
-                    reader.Read();
-
-                    changeLogRecord = new ChangeLogRecord(
-                        Version.Parse(reader.GetString("Version")), 
-                        reader.GetInt32("Number"), 
-                        reader.IsDBNull(reader.GetOrdinal("Error")) ? null : reader.GetString("Error"));
-                }
+                changeLogRecord = new ChangeLogRecord(
+                    Version.Parse(reader.GetString("Version")), 
+                    reader.GetInt32("Number"), 
+                    reader.IsDBNull(reader.GetOrdinal("Error")) ? null : reader.GetString("Error"));
             }
 
             return changeLogRecord;

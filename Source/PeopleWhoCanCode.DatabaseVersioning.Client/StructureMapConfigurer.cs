@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
+using Serilog.Extensions.Logging;
 using StructureMap;
 
 namespace PeopleWhoCanCode.DatabaseVersioning.Client
@@ -13,6 +15,11 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
         {
             _container = new Container(x =>
             {
+                // Logging.
+                x.For<Serilog.ILogger>().Use(Serilog.Log.Logger);
+                x.ForSingletonOf<ILoggerFactory>().Use<SerilogLoggerFactory>();
+                x.ForSingletonOf(typeof(ILogger<>)).Use(typeof(Logger<>));
+
                 // Hook up providers.
                 x.Scan(s =>
                 {

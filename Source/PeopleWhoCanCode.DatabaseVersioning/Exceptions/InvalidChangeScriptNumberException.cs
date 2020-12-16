@@ -4,7 +4,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Exceptions
 {
     public class InvalidChangeScriptNumberException : Exception
     {
-        public string InvalidNumber { get; private set; }
+        public string InvalidNumber { get; }
 
         public InvalidChangeScriptNumberException(string invalidNumber)
         {

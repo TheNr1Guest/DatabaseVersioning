@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
-using Serilog;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
