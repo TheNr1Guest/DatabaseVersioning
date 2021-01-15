@@ -17,13 +17,11 @@ Setup(context =>
     CleanDirectories("../Source/**/bin");
     CleanDirectories("../Source/**/obj");
     CleanDirectory(Paths.Work);
-    CleanDirectory(Paths.OctoPackages);
 });
 
 Teardown(context =>
 {
     CleanDirectory(Paths.Work);
-    CleanDirectory(Paths.OctoPackages);
 });
 
 Task("Version")
