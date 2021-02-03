@@ -6,7 +6,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
 {
     public class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(options =>
@@ -23,7 +23,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
 
                     try
                     {
-                        versioningService.Run(options.ChangeScriptsDirectory);
+                        versioningService.Run(options.ChangeScriptsDirectory, options.AfterDatabaseCreationScript);
                     }
                     catch (Exception ex)
                     {

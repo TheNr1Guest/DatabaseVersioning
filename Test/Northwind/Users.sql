@@ -1,0 +1,7 @@
+DROP USER IF EXISTS 'northwind'@'%';
+
+CREATE USER 'northwind'@'%' IDENTIFIED BY '';
+
+GRANT SELECT, INSERT, UPDATE, DELETE, EXECUTE ON `Northwind`.* TO 'northwind'@'%';
+
+FLUSH PRIVILEGES;

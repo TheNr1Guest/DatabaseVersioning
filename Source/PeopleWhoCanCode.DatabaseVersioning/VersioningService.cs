@@ -23,30 +23,30 @@ namespace PeopleWhoCanCode.DatabaseVersioning
             _databaseInitializer = databaseInitializer;
         }
 
-        public void Run(string path)
+        public void Run(string scriptsDirectoryPath, string afterDatabaseCreationScriptPath)
         {
             _provider.Connect();
 
-            var databases = FindAllDatabases(path);
+            var databases = FindAllDatabases(scriptsDirectoryPath);
 
             foreach (var database in databases)
             {
-                ApplyChangesToDatabase(path, database);
+                ApplyChangesToDatabase(scriptsDirectoryPath, database, afterDatabaseCreationScriptPath);
             }
 
             _provider.Disconnect();
         }
 
-        private void ApplyChangesToDatabase(string path, string database)
+        private void ApplyChangesToDatabase(string scriptsDirectoryPath, string database, string afterDatabaseCreationScriptPath)
         {
             // Initialize database.
-            _databaseInitializer.Initialize(database);
+            _databaseInitializer.Initialize(database, afterDatabaseCreationScriptPath);
 
             // Get latest applied version.
             var latestChangeLogRecord = GetLatestChangeLogRecord();
 
             // Get all changes since latest version.
-            var changeScripts = FindAllChangeScripts(path, database, latestChangeLogRecord);
+            var changeScripts = FindAllChangeScripts(scriptsDirectoryPath, database, latestChangeLogRecord);
 
             // Apply each change.
             _changeScriptApplier.Apply(changeScripts);

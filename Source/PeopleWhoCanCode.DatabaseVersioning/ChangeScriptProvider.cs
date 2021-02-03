@@ -21,14 +21,14 @@ namespace PeopleWhoCanCode.DatabaseVersioning
 
         public IEnumerable<ChangeScript> FindAll(string databasePath, Version latestVersion, int latestChangeScriptNumber)
         {
-            IList<ChangeScript> changeScripts = new List<ChangeScript>();
+            var changeScripts = new List<ChangeScript>();
 
             // Get all versions for each database.
             var versionPaths = Directory.GetDirectories(databasePath).OrderBy(x => x, new NaturalComparer(CultureInfo.CurrentCulture));
 
             foreach (var versionPath in versionPaths)
             {
-                string versionDirectoryName = new DirectoryInfo(versionPath).Name;
+                var versionDirectoryName = new DirectoryInfo(versionPath).Name;
 
                 if (Version.TryParse(versionDirectoryName, out var version))
                 {

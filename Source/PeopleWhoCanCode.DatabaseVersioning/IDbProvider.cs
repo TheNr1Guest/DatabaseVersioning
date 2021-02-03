@@ -13,9 +13,13 @@ namespace PeopleWhoCanCode.DatabaseVersioning
         bool DoesDatabaseExist(string name);
         void CreateDatabase(string name);
         void SelectDatabase(string name);
+
+        void ExecuteQuery(string query);
+
         bool DoesChangeLogTableExist();
         void CreateChangeLogTable();
         ChangeLogRecord FindLatestChangeLogRecord();
+
         void ApplyChangeScript(ChangeScript changeScript);
         void DeleteChangeLogRecord(ChangeLogRecord changeLogRecord);
         void InsertChangeLogRecord(ChangeLogRecord changeLogRecord);

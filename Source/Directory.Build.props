@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
-		<Version>1.0.0.1</Version>
-		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+		<Version>1.1.0.0</Version>
+		<AssemblyVersion>1.1.0.0</AssemblyVersion>
 		<Authors>People Who Can Code</Authors>
 		<Company>People Who Can Code</Company>
 		<Product>Database Versioning</Product>

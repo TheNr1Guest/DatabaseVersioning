@@ -71,18 +71,12 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void CreateDatabase(string name)
         {
-            using (var command = new MySqlCommand(DatabaseCreationQuery.Replace("?DatabaseName", name), _connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            ExecuteQuery(DatabaseCreationQuery.Replace("?DatabaseName", name));
         }
 
         public void SelectDatabase(string name)
         {
-            using (var command = new MySqlCommand(DatabaseSelectionQuery.Replace("?DatabaseName", name), _connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            ExecuteQuery(DatabaseSelectionQuery.Replace("?DatabaseName", name));
         }
 
         public bool DoesChangeLogTableExist()
@@ -98,10 +92,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void CreateChangeLogTable()
         {
-            using (var command = new MySqlCommand(ChangeLogTableCreationQuery, _connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            ExecuteQuery(ChangeLogTableCreationQuery);
         }
 
         public ChangeLogRecord FindLatestChangeLogRecord()
@@ -129,13 +120,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void ApplyChangeScript(ChangeScript changeScript)
         {
-            using (var command = new MySqlCommand(changeScript.Content, _connection)
-            {
-                CommandTimeout = 3600
-            })
-            {
-                command.ExecuteNonQuery();
-            }
+            ExecuteQuery(changeScript.Content, 3600);
         }
 
         public void DeleteChangeLogRecord(ChangeLogRecord changeLogRecord)
@@ -155,6 +140,22 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
                 command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
                 command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
                 command.Parameters.AddWithValue("?Error", changeLogRecord.Error);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void ExecuteQuery(string query)
+        {
+            ExecuteQuery(query, 30);
+        }
+
+        private void ExecuteQuery(string query, int timeout)
+        {
+            using (var command = new MySqlCommand(query, _connection)
+            {
+                CommandTimeout = timeout
+            })
+            {
                 command.ExecuteNonQuery();
             }
         }
