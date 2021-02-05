@@ -10,9 +10,6 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
         [Option('s', "scripts", Required = true, HelpText = "The path where the change scripts are located.")]
         public string ChangeScriptsDirectory { get; set; }
 
-        [Option('a', "after", Required = false)]
-        public string AfterDatabaseCreationScript { get; set; }
-
         [Option('p', "provider", Required = true, HelpText = "The provider to be used, can be: MySQL")]
         public string Provider { get; set; }
     }

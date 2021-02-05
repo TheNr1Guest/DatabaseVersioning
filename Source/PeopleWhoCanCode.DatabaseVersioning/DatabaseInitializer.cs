@@ -1,10 +1,15 @@
-﻿using System.IO;
+﻿using System.Globalization;
+using System.IO;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using PeopleWhoCanCode.DatabaseVersioning.Comparers;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
     public class DatabaseInitializer
     {
+        public const string AfterDatabaseCreationDirectoryName = "Creation";
+
         private readonly IDbProvider _provider;
         private readonly ILogger<DatabaseInitializer> _logger;
 
@@ -15,13 +20,13 @@ namespace PeopleWhoCanCode.DatabaseVersioning
             _logger = logger;
         }
 
-        public void Initialize(string database, string afterDatabaseCreationScriptPath)
+        public void Initialize(string scriptsDirectoryPath, string database)
         {
             _logger.LogDebug($"Initializing database '{database}'.");
 
             CreateDatabaseIfNotExists(database);
 
-            ExecuteAfterDatabaseCreationScript(afterDatabaseCreationScriptPath);
+            ExecuteAfterDatabaseCreationScripts(scriptsDirectoryPath, database);
 
             SelectDatabase(database);
 
@@ -30,13 +35,19 @@ namespace PeopleWhoCanCode.DatabaseVersioning
             _logger.LogInformation($"Database '{database}' has been initialized.");
         }
 
-        private void ExecuteAfterDatabaseCreationScript(string afterDatabaseCreationScriptPath)
+        private void ExecuteAfterDatabaseCreationScripts(string scriptsDirectoryPath, string database)
         {
-            if (!string.IsNullOrEmpty(afterDatabaseCreationScriptPath) && File.Exists(afterDatabaseCreationScriptPath))
-            {
-                _provider.ExecuteQuery(File.ReadAllText(afterDatabaseCreationScriptPath));
+            var afterDatabaseCreationScriptsDirectoryPath = Path.Combine(scriptsDirectoryPath, database, AfterDatabaseCreationDirectoryName);
 
-                _logger.LogInformation($"Executed '{Path.GetFileName(afterDatabaseCreationScriptPath)}'.");
+            if (!Directory.Exists(afterDatabaseCreationScriptsDirectoryPath)) return;
+
+            var scripts = Directory.GetFiles(afterDatabaseCreationScriptsDirectoryPath, "*.sql").OrderBy(x => x, new NaturalComparer(CultureInfo.CurrentCulture));
+
+            foreach (var script in scripts)
+            {
+                _provider.ExecuteQuery(File.ReadAllText(script));
+
+                _logger.LogInformation($"Executed '{Path.GetFileName(script)}'.");
             }
         }
 

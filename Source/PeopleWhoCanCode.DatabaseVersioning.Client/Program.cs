@@ -23,7 +23,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
 
                     try
                     {
-                        versioningService.Run(options.ChangeScriptsDirectory, options.AfterDatabaseCreationScript);
+                        versioningService.Run(options.ChangeScriptsDirectory);
                     }
                     catch (Exception ex)
                     {

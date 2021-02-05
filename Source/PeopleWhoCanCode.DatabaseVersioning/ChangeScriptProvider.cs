@@ -24,28 +24,29 @@ namespace PeopleWhoCanCode.DatabaseVersioning
             var changeScripts = new List<ChangeScript>();
 
             // Get all versions for each database.
-            var versionPaths = Directory.GetDirectories(databasePath).OrderBy(x => x, new NaturalComparer(CultureInfo.CurrentCulture));
+            var versionDirectories = Directory.GetDirectories(databasePath)
+                                              .OrderBy(x => x, new NaturalComparer(CultureInfo.CurrentCulture))
+                                              .Select(x => new DirectoryInfo(x))
+                                              .Where(x => !string.Equals(x.Name, DatabaseInitializer.AfterDatabaseCreationDirectoryName, StringComparison.InvariantCulture));
 
-            foreach (var versionPath in versionPaths)
+            foreach (var versionDirectory in versionDirectories)
             {
-                var versionDirectoryName = new DirectoryInfo(versionPath).Name;
-
-                if (Version.TryParse(versionDirectoryName, out var version))
+                if (Version.TryParse(versionDirectory.Name, out var version))
                 {
                     // Get all change scripts per version for each database since latest version.
                     if (version >= latestVersion)
                     {
-                        var changeScriptPaths = Directory.GetFiles(versionPath, "*.sql").OrderBy(x => x, new NaturalComparer(CultureInfo.CurrentCulture));
+                        var changeScriptFiles = versionDirectory.GetFiles("*.sql").OrderBy(x => x.Name, new NaturalComparer(CultureInfo.CurrentCulture));
 
-                        foreach (var changeScriptPath in changeScriptPaths)
+                        foreach (var changeScriptFile in changeScriptFiles)
                         {
-                            var changeScriptFileName = Path.GetFileNameWithoutExtension(changeScriptPath);
+                            var changeScriptFileName = Path.GetFileNameWithoutExtension(changeScriptFile.FullName);
 
                             if (int.TryParse(changeScriptFileName, out var changeScriptNumber))
                             {
                                 if (version == latestVersion && changeScriptNumber > latestChangeScriptNumber || version != latestVersion)
                                 {
-                                    changeScripts.Add(new ChangeScript(version, changeScriptNumber, File.ReadAllText(changeScriptPath)));
+                                    changeScripts.Add(new ChangeScript(version, changeScriptNumber, File.ReadAllText(changeScriptFile.FullName)));
                                 }
                                 else
                                 {
@@ -65,7 +66,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
                 }
                 else
                 {
-                    throw new InvalidVersionException(versionDirectoryName);
+                    throw new InvalidVersionException(versionDirectory.Name);
                 }
             }
 

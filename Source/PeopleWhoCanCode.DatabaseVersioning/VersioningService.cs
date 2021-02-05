@@ -23,7 +23,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning
             _databaseInitializer = databaseInitializer;
         }
 
-        public void Run(string scriptsDirectoryPath, string afterDatabaseCreationScriptPath)
+        public void Run(string scriptsDirectoryPath)
         {
             _provider.Connect();
 
@@ -31,16 +31,16 @@ namespace PeopleWhoCanCode.DatabaseVersioning
 
             foreach (var database in databases)
             {
-                ApplyChangesToDatabase(scriptsDirectoryPath, database, afterDatabaseCreationScriptPath);
+                ApplyChangesToDatabase(scriptsDirectoryPath, database);
             }
 
             _provider.Disconnect();
         }
 
-        private void ApplyChangesToDatabase(string scriptsDirectoryPath, string database, string afterDatabaseCreationScriptPath)
+        private void ApplyChangesToDatabase(string scriptsDirectoryPath, string database)
         {
             // Initialize database.
-            _databaseInitializer.Initialize(database, afterDatabaseCreationScriptPath);
+            _databaseInitializer.Initialize(scriptsDirectoryPath, database);
 
             // Get latest applied version.
             var latestChangeLogRecord = GetLatestChangeLogRecord();
