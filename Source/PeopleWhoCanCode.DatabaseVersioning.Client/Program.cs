@@ -8,30 +8,44 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
     {
         private static void Main(string[] args)
         {
-            Parser.Default.ParseArguments<Options>(args)
-                .WithParsed(options =>
-                {
-                    // Bootstrap client.
-                    Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
-                                                          .WriteTo.Console()
-                                                          .CreateLogger();
+            var exitCode = Parser.Default.ParseArguments<Options>(args)
+                                         .MapResult(x => RunParsed(x),
+                                                    x => RunNotParsed());
 
-                    StructureMapConfigurer.Initialize(options.ConnectionString);
+            Environment.Exit(exitCode);
+        }
 
-                    // Run versioning service.
-                    var versioningService = StructureMapConfigurer.GetVersioningService(options.Provider);
+        private static int RunParsed(Options options)
+        {
+            // Bootstrap client.
+            Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
+                                                  .WriteTo.Console()
+                                                  .CreateLogger();
 
-                    try
-                    {
-                        versioningService.Run(options.ChangeScriptsDirectory);
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Error(ex, "Versioning service stopped due to an exception being thrown.");
-                    }
+            StructureMapConfigurer.Initialize(options.ConnectionString);
 
-                    Log.Information("Done!");
-                });
+            // Run versioning service.
+            var versioningService = StructureMapConfigurer.GetVersioningService(options.Provider);
+
+            try
+            {
+                versioningService.Run(options.ChangeScriptsDirectory);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "Versioning service stopped due to an exception being thrown.");
+
+                return -1;
+            }
+
+            Log.Information("Done!");
+
+            return 0;
+        }
+
+        private static int RunNotParsed()
+        {
+            return -1;
         }
     }
 }
