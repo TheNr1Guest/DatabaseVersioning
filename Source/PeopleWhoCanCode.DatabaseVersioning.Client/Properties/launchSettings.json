@@ -2,7 +2,7 @@
   "profiles": {
     "PeopleWhoCanCode.DatabaseVersioning.Client": {
       "commandName": "Project",
-      "commandLineArgs": "-c \"Server=localhost;Uid=databaseversioner;Pwd=;\" -s \"C:\\Git\\DatabaseVersioning\\Test\" -p MySql"
+      "commandLineArgs": "-c \"Server=localhost;Uid=databaseversioner;Pwd=;Allow User Variables=True;\" -s \"C:\\Git\\DatabaseVersioning\\Test\" -p MySql"
     }
   }
 }

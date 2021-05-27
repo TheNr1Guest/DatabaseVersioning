@@ -120,7 +120,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void ApplyChangeScript(ChangeScript changeScript)
         {
-            ExecuteQuery(changeScript.Content, 3600);
+            ExecuteQuery(changeScript.Content);
         }
 
         public void DeleteChangeLogRecord(ChangeLogRecord changeLogRecord)
@@ -146,15 +146,9 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void ExecuteQuery(string query)
         {
-            ExecuteQuery(query, 30);
-        }
+            if (string.IsNullOrEmpty(query)) return;
 
-        private void ExecuteQuery(string query, int timeout)
-        {
-            using (var command = new MySqlCommand(query, _connection)
-            {
-                CommandTimeout = timeout
-            })
+            using (var command = new MySqlCommand(query, _connection))
             {
                 command.ExecuteNonQuery();
             }
