@@ -56,17 +56,15 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public bool DoesDatabaseExist(string name)
         {
-            using (var command = new MySqlCommand(DatabaseExistsQuery, _connection))
-            {
-                command.Parameters.AddWithValue("?DatabaseName", name);
+            using var command = new MySqlCommand(DatabaseExistsQuery, _connection);
 
-                using (var reader = command.ExecuteReader())
-                {
-                    var exists = reader.HasRows;
+            command.Parameters.AddWithValue("?DatabaseName", name);
 
-                    return exists;
-                }
-            }
+            using var reader = command.ExecuteReader();
+
+            var exists = reader.HasRows;
+
+            return exists;
         }
 
         public void CreateDatabase(string name)
@@ -81,13 +79,11 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public bool DoesChangeLogTableExist()
         {
-            using (var command = new MySqlCommand(ChangeLogTableExistsQuery, _connection))
-            {
-                using (var reader = command.ExecuteReader())
-                {
-                    return reader.HasRows;
-                }
-            }
+            using var command = new MySqlCommand(ChangeLogTableExistsQuery, _connection);
+
+            using var reader = command.ExecuteReader();
+
+            return reader.HasRows;
         }
 
         public void CreateChangeLogTable()
@@ -97,25 +93,23 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public ChangeLogRecord FindLatestChangeLogRecord()
         {
-            using (var command = new MySqlCommand(ChangeLogSelectLatestQuery, _connection))
+            using var command = new MySqlCommand(ChangeLogSelectLatestQuery, _connection);
+
+            using var reader = command.ExecuteReader();
+
+            ChangeLogRecord changeLogRecord = null;
+
+            if (reader.HasRows)
             {
-                using (var reader = command.ExecuteReader())
-                {
-                    ChangeLogRecord changeLogRecord = null;
+                reader.Read();
 
-                    if (reader.HasRows)
-                    {
-                        reader.Read();
-
-                        changeLogRecord = new ChangeLogRecord(
-                            Version.Parse(reader.GetString("Version")),
-                            reader.GetInt32("Number"),
-                            reader.IsDBNull(reader.GetOrdinal("Error")) ? null : reader.GetString("Error"));
-                    }
-
-                    return changeLogRecord;
-                }
+                changeLogRecord = new ChangeLogRecord(
+                    Version.Parse(reader.GetString("Version")),
+                    reader.GetInt32("Number"),
+                    reader.IsDBNull(reader.GetOrdinal("Error")) ? null : reader.GetString("Error"));
             }
+
+            return changeLogRecord;
         }
 
         public void ApplyChangeScript(ChangeScript changeScript)
@@ -125,33 +119,30 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
 
         public void DeleteChangeLogRecord(ChangeLogRecord changeLogRecord)
         {
-            using (var command = new MySqlCommand(ChangeLogDeleteQuery, _connection))
-            {
-                command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
-                command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(ChangeLogDeleteQuery, _connection);
+
+            command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
+            command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
+            command.ExecuteNonQuery();
         }
 
         public void InsertChangeLogRecord(ChangeLogRecord changeLogRecord)
         {
-            using (var command = new MySqlCommand(ChangeLogInsertQuery, _connection))
-            {
-                command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
-                command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
-                command.Parameters.AddWithValue("?Error", changeLogRecord.Error);
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(ChangeLogInsertQuery, _connection);
+
+            command.Parameters.AddWithValue("?Version", changeLogRecord.Version.ToString());
+            command.Parameters.AddWithValue("?Number", changeLogRecord.Number);
+            command.Parameters.AddWithValue("?Error", changeLogRecord.Error);
+            command.ExecuteNonQuery();
         }
 
         public void ExecuteQuery(string query)
         {
             if (string.IsNullOrEmpty(query)) return;
 
-            using (var command = new MySqlCommand(query, _connection))
-            {
-                command.ExecuteNonQuery();
-            }
+            using var command = new MySqlCommand(query, _connection);
+
+            command.ExecuteNonQuery();
         }
 
         public IDbTransaction BeginTransaction()
