@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Transactions;
 using Microsoft.Extensions.Logging;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
 
@@ -29,13 +28,15 @@ namespace PeopleWhoCanCode.DatabaseVersioning
         {
             Exception exception = null;
 
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew))
+            using (var transaction = _provider.BeginTransaction())
             {
                 try
                 {
                     _provider.ApplyChangeScript(changeScript);
+
                     _logger.LogInformation($"Database script #{changeScript.Number} of version {changeScript.Version} has been applied.");
-                    transaction.Complete();
+
+                    transaction.Commit();
                 }
                 catch (Exception ex)
                 {
@@ -45,17 +46,18 @@ namespace PeopleWhoCanCode.DatabaseVersioning
 
             var changeLogRecord = new ChangeLogRecord(changeScript, exception);
 
-            using (var transaction = new TransactionScope(TransactionScopeOption.RequiresNew))
+            using (var transaction = _provider.BeginTransaction())
             {
                 _provider.DeleteChangeLogRecord(changeLogRecord);
                 _provider.InsertChangeLogRecord(changeLogRecord);
 
-                transaction.Complete();
+                transaction.Commit();
             }
 
             if (!changeLogRecord.IsSuccessful)
             {
                 _provider.Disconnect();
+
                 throw changeLogRecord.Exception;
             }
         }

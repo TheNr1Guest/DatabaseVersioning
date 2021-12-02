@@ -1,4 +1,5 @@
-﻿using PeopleWhoCanCode.DatabaseVersioning.Models;
+﻿using System.Data;
+using PeopleWhoCanCode.DatabaseVersioning.Models;
 
 namespace PeopleWhoCanCode.DatabaseVersioning
 {
@@ -23,5 +24,6 @@ namespace PeopleWhoCanCode.DatabaseVersioning
         void ApplyChangeScript(ChangeScript changeScript);
         void DeleteChangeLogRecord(ChangeLogRecord changeLogRecord);
         void InsertChangeLogRecord(ChangeLogRecord changeLogRecord);
+        IDbTransaction BeginTransaction();
     }
 }

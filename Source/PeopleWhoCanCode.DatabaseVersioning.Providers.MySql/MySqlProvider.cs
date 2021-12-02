@@ -153,5 +153,10 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Providers.MySql
                 command.ExecuteNonQuery();
             }
         }
+
+        public IDbTransaction BeginTransaction()
+        {
+            return _connection.BeginTransaction();
+        }
     }
 }
