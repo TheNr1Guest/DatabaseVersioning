@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Linq;
+using Lamar;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
 using Serilog.Extensions.Logging;
-using StructureMap;
 
 namespace PeopleWhoCanCode.DatabaseVersioning.Client
 {
-    public static class StructureMapConfigurer
+    public static class LamarConfigurer
     {
         private static IContainer _container;
 
@@ -17,27 +18,28 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
             {
                 // Logging.
                 x.For<Serilog.ILogger>().Use(Serilog.Log.Logger);
-                x.ForSingletonOf<ILoggerFactory>().Use<SerilogLoggerFactory>();
-                x.ForSingletonOf(typeof(ILogger<>)).Use(typeof(Logger<>));
+                x.For<ILoggerFactory>().Use<SerilogLoggerFactory>().Singleton();
+                x.For(typeof(ILogger<>)).Use(typeof(Logger<>)).Singleton();
 
                 // Hook up providers.
-                x.Scan(s =>
+                x.Scan(scanner =>
                 {
-                    s.AssembliesFromApplicationBaseDirectory(f => f.FullName.StartsWith("PeopleWhoCanCode.DatabaseVersioning"));
-                    s.AddAllTypesOf<IDbProvider>();
-                    s.WithDefaultConventions();
+                    scanner.AssembliesFromApplicationBaseDirectory(filter => filter.FullName.StartsWith("PeopleWhoCanCode.DatabaseVersioning"));
+                    scanner.AddAllTypesOf<IDbProvider>();
+                    scanner.WithDefaultConventions();
                 });
 
                 // Hook up connection string.
                 x.For<IConnectionString>().Use<ConnectionString>()
-                    .Ctor<string>("value")
-                    .Is(connectionString);
+                                          .Ctor<string>("value")
+                                          .Is(connectionString);
             });
         }
 
         public static VersioningService GetVersioningService(string providerName)
         {
             SelectProviderByName(providerName);
+
             return _container.GetInstance<VersioningService>();
         }
 
@@ -46,7 +48,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
             var providers = _container.GetAllInstances<IDbProvider>();
             var provider = providers.FirstOrDefault(x => string.Equals(x.Name, providerName, StringComparison.InvariantCultureIgnoreCase));
 
-            _container.Configure(x => x.For<IDbProvider>().Use(provider));
+            _container.Configure(x => x.AddSingleton(provider));
         }
     }
 }

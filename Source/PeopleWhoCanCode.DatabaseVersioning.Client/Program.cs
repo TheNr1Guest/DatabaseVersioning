@@ -22,10 +22,10 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client
                                                   .WriteTo.Console()
                                                   .CreateLogger();
 
-            StructureMapConfigurer.Initialize(options.ConnectionString);
+            LamarConfigurer.Initialize(options.ConnectionString);
 
             // Run versioning service.
-            var versioningService = StructureMapConfigurer.GetVersioningService(options.Provider);
+            var versioningService = LamarConfigurer.GetVersioningService(options.Provider);
 
             try
             {
