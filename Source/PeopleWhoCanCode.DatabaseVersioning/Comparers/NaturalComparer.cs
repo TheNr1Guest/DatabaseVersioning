@@ -13,49 +13,52 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Comparers
             _cultureInfo = cultureInfo;
         }
 
-        public int Compare(string x, string y)
+        public int Compare(string left, string right)
         {
             // Simple cases.
-            if (x == y) return 0;// Also handles null.
-            if (x == null) return -1;
-            if (y == null) return +1;
+            if (left == right) return 0; // Also handles null.
+            if (left == null) return -1;
+            if (right == null) return +1;
 
-            var ix = 0;
-            var iy = 0;
+            var leftIndex = 0;
+            var rightIndex = 0;
 
-            while (ix < x.Length && iy < y.Length)
+            while (leftIndex < left.Length && rightIndex < right.Length)
             {
-                if (char.IsDigit(x[ix]) && char.IsDigit(y[iy]))
+                if (char.IsDigit(left[leftIndex]) && char.IsDigit(right[rightIndex]))
                 {
                     // We found numbers, so grab both numbers.
-                    int ix1 = ix++;
-                    int iy1 = iy++;
-                    while (ix < x.Length && Char.IsDigit(x[ix])) ix++;
-                    while (iy < y.Length && Char.IsDigit(y[iy])) iy++;
-                    string numberFromX = x.Substring(ix1, ix - ix1);
-                    string numberFromY = y.Substring(iy1, iy - iy1);
+                    var newLeftIndex = leftIndex++;
+                    var newRightIndex = rightIndex++;
+                    while (leftIndex < left.Length && Char.IsDigit(left[leftIndex])) leftIndex++;
+                    while (rightIndex < right.Length && Char.IsDigit(right[rightIndex])) rightIndex++;
+                    var numberFromLeft = left.Substring(newLeftIndex, leftIndex - newLeftIndex);
+                    var numberFromRight = right.Substring(newRightIndex, rightIndex - newRightIndex);
 
-                    // Pad them with 0's to have the same length
-                    int maxLength = Math.Max(numberFromX.Length, numberFromY.Length);
-                    numberFromX = numberFromX.PadLeft(maxLength, '0');
-                    numberFromY = numberFromY.PadLeft(maxLength, '0');
+                    // Pad them with 0's to have the same length.
+                    var maxLength = Math.Max(numberFromLeft.Length, numberFromRight.Length);
+                    numberFromLeft = numberFromLeft.PadLeft(maxLength, '0');
+                    numberFromRight = numberFromRight.PadLeft(maxLength, '0');
 
-                    int comparison = _cultureInfo.CompareInfo.Compare(numberFromX, numberFromY);
+                    var comparison = _cultureInfo.CompareInfo.Compare(numberFromLeft, numberFromRight);
+
                     if (comparison != 0) return comparison;
                 }
                 else
                 {
-                    int comparison = _cultureInfo.CompareInfo.Compare(x, ix, 1, y, iy, 1);
+                    var comparison = _cultureInfo.CompareInfo.Compare(left, leftIndex, 1, right, rightIndex, 1);
+
                     if (comparison != 0) return comparison;
-                    ix++;
-                    iy++;
+
+                    leftIndex++;
+                    rightIndex++;
                 }
             }
 
-            // We still got parts of x left, y comes first.
-            if (ix < x.Length) return +1;
+            // We still got parts of 'left' left, 'right' comes first.
+            if (leftIndex < left.Length) return +1;
 
-            // We still got parts of y left, x comes first.
+            // We still got parts of 'right' left, 'left' comes first.
             return -1;
         }
     }
