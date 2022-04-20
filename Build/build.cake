@@ -2,15 +2,15 @@
 #load urls.cake
 #load projects.cake
 
-#addin nuget:?package=Cake.FileHelpers&version=3.3.0
+#addin nuget:?package=Cake.FileHelpers&version=5.0.0
 
-#tool "nuget:?package=OctopusTools&version=7.4.4" 
+#tool "nuget:?package=OctopusTools&version=9.0.0" 
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var octopusApiKey = Argument("octopus-api-key", "");
 
-var version = "0.0.0.0";
+var version = "0.0.0";
 
 Setup(context =>
 {
@@ -35,65 +35,49 @@ Task("Version")
 Task("NuGet-Restore")
     .Does(() =>
     {
-        foreach(var project in projects)
-        {
-			Information($"-> Restoring packages: {project.Name}");
-
-            DotNetCoreRestore(project.FilePath);
-        }
+        DotNetRestore(Paths.SolutionFile.ToString());
     });
     
 Task("Build")
     .IsDependentOn("NuGet-Restore")
     .Does(() =>
     {
-        foreach(var project in projects)
-        {
-			Information($"-> Building: {project.Name}");
-
-			DotNetCoreBuild(project.FilePath, 
-				new DotNetCoreBuildSettings
-				{
-					Configuration = configuration,
-					Verbosity = DotNetCoreVerbosity.Minimal,
-					NoLogo = true,
-					NoRestore = true
-				});
-        }
+		DotNetBuild(Paths.SolutionFile.ToString(), 
+			new DotNetBuildSettings
+			{
+				Configuration = configuration,
+				Verbosity = DotNetVerbosity.Minimal,
+				NoLogo = true,
+				NoRestore = true
+			});
     });
 
 Task("Test")
     .IsDependentOn("Build")
     .Does(() => 
     {
-        foreach(var project in projects.Where(x => x.IsTest))
-        {
-			Information($"-> Testing: {project.Name}");
-
-            DotNetCoreTest(project.FilePath,
-                new DotNetCoreTestSettings
-                {
-                    Configuration = configuration,
-                    NoBuild = true,
-                    NoLogo = true
-                });
-        }
+		DotNetTest(Paths.SolutionFile.ToString(),
+			new DotNetTestSettings
+			{
+				Configuration = configuration,
+				NoLogo = true,
+				NoRestore = true,
+				NoBuild = true
+			});
     });
 
 Task("Publish")
     .IsDependentOn("Build")
     .Does(() => 
     {
-        CreateDirectory(Paths.Packages);
-
-        foreach(var project in projects.Where(x => !x.IsTest))
+        foreach(var project in projects)
         {
             var outputDirectory = MakeAbsolute(Paths.Publish.Combine(Directory(project.Name)));
 
 			Information($"-> Publishing: {project.Name} to {outputDirectory}");
 
-			DotNetCorePublish(project.FilePath, 
-				new DotNetCorePublishSettings
+			DotNetPublish(project.FilePath, 
+				new DotNetPublishSettings
 				{
 					Configuration = configuration,
 					NoBuild = true,
@@ -111,9 +95,9 @@ Task("Octo-Pack")
     {
         CreateDirectory(Paths.OctoPackages);
 
-        foreach(var project in projects.Where(x => !x.IsTest))
+        foreach(var project in projects)
         {
-            var projectPublishDirectory = MakeAbsolute(Paths.Publish.Combine(Directory(project.Name)).Combine(Directory(project.PublishRoot)));
+            var projectPublishDirectory = MakeAbsolute(Paths.Publish.Combine(Directory(project.Name)));
 
             OctoPack($"PeopleWhoCanCode.DatabaseVersioning.{project.Name}", 
                 new OctopusPackSettings {

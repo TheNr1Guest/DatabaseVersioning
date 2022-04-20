@@ -1,14 +1,11 @@
-﻿using System;
+﻿namespace PeopleWhoCanCode.DatabaseVersioning.Exceptions;
 
-namespace PeopleWhoCanCode.DatabaseVersioning.Exceptions
+public class InvalidVersionException : Exception
 {
-    public class InvalidVersionException : Exception
-    {
-        public string InvalidVersion { get; }
+    public string InvalidVersion { get; }
 
-        public InvalidVersionException(string invalidVersion)
-        {
-            InvalidVersion = invalidVersion;
-        }
+    public InvalidVersionException(string invalidVersion)
+    {
+        InvalidVersion = invalidVersion;
     }
 }

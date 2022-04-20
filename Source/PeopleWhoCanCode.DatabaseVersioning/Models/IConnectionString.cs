@@ -1,7 +1,6 @@
-﻿namespace PeopleWhoCanCode.DatabaseVersioning.Models
+﻿namespace PeopleWhoCanCode.DatabaseVersioning.Models;
+
+public interface IConnectionString
 {
-    public interface IConnectionString
-    {
-        string Value { get; }
-    }
+    string Value { get; }
 }

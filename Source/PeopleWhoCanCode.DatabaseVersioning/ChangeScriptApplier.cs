@@ -1,65 +1,62 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using PeopleWhoCanCode.DatabaseVersioning.Models;
 
-namespace PeopleWhoCanCode.DatabaseVersioning
+namespace PeopleWhoCanCode.DatabaseVersioning;
+
+public class ChangeScriptApplier
 {
-    public class ChangeScriptApplier
+    private readonly IDbProvider _provider;
+    private readonly ILogger<ChangeScriptApplier> _logger;
+
+    public ChangeScriptApplier(IDbProvider provider, ILogger<ChangeScriptApplier> logger)
     {
-        private readonly IDbProvider _provider;
-        private readonly ILogger<ChangeScriptApplier> _logger;
+        _provider = provider;
+        _logger = logger;
+    }
 
-        public ChangeScriptApplier(IDbProvider provider, ILogger<ChangeScriptApplier> logger)
+    public void Apply(IEnumerable<ChangeScript> changeScripts)
+    {
+        foreach (var changeScript in changeScripts)
         {
-            _provider = provider;
-            _logger = logger;
+            Apply(changeScript);
         }
+    }
 
-        public void Apply(IEnumerable<ChangeScript> changeScripts)
+    private void Apply(ChangeScript changeScript)
+    {
+        Exception? exception = null;
+
+        using (var transaction = _provider.BeginTransaction())
         {
-            foreach (var changeScript in changeScripts)
+            try
             {
-                Apply(changeScript);
-            }
-        }
+                _provider.ApplyChangeScript(changeScript);
 
-        private void Apply(ChangeScript changeScript)
-        {
-            Exception exception = null;
-
-            using (var transaction = _provider.BeginTransaction())
-            {
-                try
-                {
-                    _provider.ApplyChangeScript(changeScript);
-
-                    _logger.LogInformation($"Database script #{changeScript.Number} of version {changeScript.Version} has been applied.");
-
-                    transaction.Commit();
-                }
-                catch (Exception ex)
-                {
-                    exception = ex;
-                }
-            }
-
-            var changeLogRecord = new ChangeLogRecord(changeScript, exception);
-
-            using (var transaction = _provider.BeginTransaction())
-            {
-                _provider.DeleteChangeLogRecord(changeLogRecord);
-                _provider.InsertChangeLogRecord(changeLogRecord);
+                _logger.LogInformation("Database script #{ChangeScriptNumber} of version {ChangeScriptVersion} has been applied.", changeScript.Number, changeScript.Version);
 
                 transaction.Commit();
             }
-
-            if (!changeLogRecord.IsSuccessful)
+            catch (Exception ex)
             {
-                _provider.Disconnect();
-
-                throw changeLogRecord.Exception;
+                exception = ex;
             }
+        }
+
+        var changeLogRecord = new ChangeLogRecord(changeScript, exception);
+
+        using (var transaction = _provider.BeginTransaction())
+        {
+            _provider.DeleteChangeLogRecord(changeLogRecord);
+            _provider.InsertChangeLogRecord(changeLogRecord);
+
+            transaction.Commit();
+        }
+
+        if (!changeLogRecord.IsSuccessful)
+        {
+            _provider.Disconnect();
+
+            throw changeLogRecord.Exception!;
         }
     }
 }

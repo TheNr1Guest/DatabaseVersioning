@@ -1,72 +1,68 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using PeopleWhoCanCode.DatabaseVersioning.Models;
+﻿using PeopleWhoCanCode.DatabaseVersioning.Models;
 
-namespace PeopleWhoCanCode.DatabaseVersioning
+namespace PeopleWhoCanCode.DatabaseVersioning;
+
+public class VersioningService
 {
-    public class VersioningService
+    private readonly IDbProvider _provider;
+    private readonly ChangeScriptProvider _changeScripts;
+    private readonly ChangeScriptApplier _changeScriptApplier;
+    private readonly DatabaseInitializer _databaseInitializer;
+
+    public VersioningService(IDbProvider provider,
+                             ChangeScriptProvider changeScripts,
+                             ChangeScriptApplier changeScriptApplier,
+                             DatabaseInitializer databaseInitializer)
     {
-        private readonly IDbProvider _provider;
-        private readonly ChangeScriptProvider _changeScripts;
-        private readonly ChangeScriptApplier _changeScriptApplier;
-        private readonly DatabaseInitializer _databaseInitializer;
+        _provider = provider;
+        _changeScripts = changeScripts;
+        _changeScriptApplier = changeScriptApplier;
+        _databaseInitializer = databaseInitializer;
+    }
 
-        public VersioningService(IDbProvider provider,
-                                 ChangeScriptProvider changeScripts,
-                                 ChangeScriptApplier changeScriptApplier,
-                                 DatabaseInitializer databaseInitializer)
+    public void Run(string scriptsDirectoryPath)
+    {
+        _provider.Connect();
+
+        var databases = FindAllDatabases(scriptsDirectoryPath);
+
+        foreach (var database in databases)
         {
-            _provider = provider;
-            _changeScripts = changeScripts;
-            _changeScriptApplier = changeScriptApplier;
-            _databaseInitializer = databaseInitializer;
+            ApplyChangesToDatabase(scriptsDirectoryPath, database);
         }
 
-        public void Run(string scriptsDirectoryPath)
-        {
-            _provider.Connect();
+        _provider.Disconnect();
+    }
 
-            var databases = FindAllDatabases(scriptsDirectoryPath);
+    private void ApplyChangesToDatabase(string scriptsDirectoryPath, string database)
+    {
+        // Initialize database.
+        _databaseInitializer.Initialize(scriptsDirectoryPath, database);
 
-            foreach (var database in databases)
-            {
-                ApplyChangesToDatabase(scriptsDirectoryPath, database);
-            }
+        // Get latest applied version.
+        var latestChangeLogRecord = GetLatestChangeLogRecord();
 
-            _provider.Disconnect();
-        }
+        // Get all changes since latest version.
+        var changeScripts = FindAllChangeScripts(scriptsDirectoryPath, database, latestChangeLogRecord);
 
-        private void ApplyChangesToDatabase(string scriptsDirectoryPath, string database)
-        {
-            // Initialize database.
-            _databaseInitializer.Initialize(scriptsDirectoryPath, database);
+        // Apply each change.
+        _changeScriptApplier.Apply(changeScripts);
+    }
 
-            // Get latest applied version.
-            var latestChangeLogRecord = GetLatestChangeLogRecord();
+    private IEnumerable<ChangeScript> FindAllChangeScripts(string path, string database, ChangeLogRecord latestChangeLogRecord)
+    {
+        return _changeScripts.FindAll(Path.Combine(path, database),
+                                      latestChangeLogRecord.Version,
+                                      latestChangeLogRecord.Number);
+    }
 
-            // Get all changes since latest version.
-            var changeScripts = FindAllChangeScripts(scriptsDirectoryPath, database, latestChangeLogRecord);
+    private static IEnumerable<string> FindAllDatabases(string path)
+    {
+        return Directory.GetDirectories(path).Select(x => new DirectoryInfo(x).Name);
+    }
 
-            // Apply each change.
-            _changeScriptApplier.Apply(changeScripts);
-        }
-
-        private IEnumerable<ChangeScript> FindAllChangeScripts(string path, string database, ChangeLogRecord latestChangeLogRecord)
-        {
-            return _changeScripts.FindAll(Path.Combine(path, database),
-                                          latestChangeLogRecord.Version,
-                                          latestChangeLogRecord.Number);
-        }
-
-        private static IEnumerable<string> FindAllDatabases(string path)
-        {
-            return Directory.GetDirectories(path).Select(x => new DirectoryInfo(x).Name);
-        }
-
-        private ChangeLogRecord GetLatestChangeLogRecord()
-        {
-            return _provider.FindLatestChangeLogRecord() ?? new ChangeLogRecord();
-        }
+    private ChangeLogRecord GetLatestChangeLogRecord()
+    {
+        return _provider.FindLatestChangeLogRecord() ?? new ChangeLogRecord();
     }
 }
