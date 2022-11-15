@@ -20,7 +20,7 @@ public class DatabaseInitializer
 
     public void Initialize(string scriptsDirectoryPath, string database)
     {
-        _logger.LogDebug($"Initializing database '{database}'.");
+        _logger.LogDebug("Initializing database '{Database}'.", database);
 
         CreateDatabaseIfNotExists(database);
 
@@ -30,7 +30,7 @@ public class DatabaseInitializer
 
         CreateChangeLogTableIfNotExists();
 
-        _logger.LogInformation($"Database '{database}' has been initialized.");
+        _logger.LogInformation("Database '{Database}' has been initialized.", database);
     }
 
     private void ExecuteAfterDatabaseCreationScripts(string scriptsDirectoryPath, string database)
@@ -45,7 +45,7 @@ public class DatabaseInitializer
         {
             _provider.ExecuteQuery(File.ReadAllText(script));
 
-            _logger.LogInformation($"Executed '{Path.GetFileName(script)}'.");
+            _logger.LogInformation("Executed '{ScriptPath}'.", Path.GetFileName(script));
         }
     }
 

@@ -46,7 +46,7 @@ public class ChangeScriptProvider
                             }
                             else
                             {
-                                _logger.LogInformation($"Ignoring change script #{changeScriptNumber} of version {version}");
+                                _logger.LogInformation("Ignoring change script #{ChangeScriptNumber} of version {Version}", changeScriptNumber, version);
                             }
                         }
                         else
@@ -57,7 +57,7 @@ public class ChangeScriptProvider
                 }
                 else
                 {
-                    _logger.LogInformation($"Ignoring version {version}");
+                    _logger.LogInformation("Ignoring version {Version}", version);
                 }
             }
             else

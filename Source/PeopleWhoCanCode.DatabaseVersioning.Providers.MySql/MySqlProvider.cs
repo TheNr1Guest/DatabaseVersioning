@@ -37,10 +37,7 @@ public class MySqlProvider : IDbProvider
 
     public void Connect()
     {
-        if (_connection == null)
-        {
-            _connection = new MySqlConnection(ConnectionString);
-        }
+        _connection ??= new MySqlConnection(ConnectionString);
 
         if (_connection.State != ConnectionState.Open)
         {
