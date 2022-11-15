@@ -83,7 +83,8 @@ Task("Publish")
 					NoBuild = true,
 					NoRestore = true,
 					NoLogo = true,
-					OutputDirectory = outputDirectory
+					OutputDirectory = outputDirectory,
+					Runtime = "win-x64"
 				});
         }
     });
