@@ -2,11 +2,11 @@
 
 public class ChangeLogRecord
 {
-    public Version Version { get; set; }
-    public int Number { get; set; }
-    public string? Error { get; set; }
+    public Version Version { get; }
+    public int Number { get; }
+    public string? Error { get; }
     public bool IsSuccessful => string.IsNullOrEmpty(Error);
-    public Exception? Exception { get; set; }
+    public Exception? Exception { get; }
 
     public ChangeLogRecord()
     {

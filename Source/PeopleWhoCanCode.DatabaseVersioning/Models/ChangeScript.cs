@@ -2,14 +2,7 @@
 
 public class ChangeScript
 {
-    public Version Version { get; set; }
-    public int Number { get; set; }
-    public string Content { get; set; }
-
-    public ChangeScript(Version version, int number, string content)
-    {
-        Version = version;
-        Number = number;
-        Content = content;
-    }
+    public required Version Version { get; init; }
+    public required int Number { get; init; }
+    public required string Content { get; init; }
 }

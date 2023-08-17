@@ -42,7 +42,12 @@ public class ChangeScriptProvider
                         {
                             if (version == latestVersion && changeScriptNumber > latestChangeScriptNumber || version != latestVersion)
                             {
-                                changeScripts.Add(new ChangeScript(version, changeScriptNumber, File.ReadAllText(changeScriptFile.FullName)));
+                                changeScripts.Add(new ChangeScript
+                                {
+                                    Version = version,
+                                    Number = changeScriptNumber,
+                                    Content = File.ReadAllText(changeScriptFile.FullName),
+                                });
                             }
                             else
                             {
