@@ -11,17 +11,17 @@ public class MySqlProvider : IDbProvider
     private const string DatabaseSelectionQuery = "USE ?DatabaseName;";
     private const string ChangeLogTableExistsQuery = "SHOW TABLES LIKE 'ChangeLog';";
     private const string ChangeLogTableCreationQuery = @"CREATE TABLE  `ChangeLog` (
-                                                            `Version` VARCHAR( 20 ) NOT NULL ,
-                                                            `Number` INT NOT NULL ,
-                                                            `ApplyDate` DATETIME NOT NULL,
-                                                            `Error` TEXT NULL ,
-                                                            PRIMARY KEY (  `Version` ,  `Number` )
-                                                            ) ENGINE = INNODB;";
+                                                         `Version` VARCHAR(20) NOT NULL ,
+                                                         `Number` INT NOT NULL ,
+                                                         `ApplyDate` DATETIME NOT NULL,
+                                                         `Error` TEXT NULL ,
+                                                         PRIMARY KEY (`Version`, `Number`)
+                                                         ) ENGINE = INNODB;";
     private const string ChangeLogSelectLatestQuery = @"SELECT `Version`, `Number`, `Error`  
-                                                            FROM `ChangeLog` 
-                                                            WHERE `Error` IS NULL 
-                                                            ORDER BY INET_ATON(SUBSTRING_INDEX(CONCAT(`Version`,'.0.0.0'), '.', 4)) DESC, `Number` DESC 
-                                                            LIMIT 0, 1;";
+                                                        FROM `ChangeLog` 
+                                                        WHERE `Error` IS NULL 
+                                                        ORDER BY INET_ATON(SUBSTRING_INDEX(CONCAT(`Version`,'.0.0.0'), '.', 4)) DESC, `Number` DESC 
+                                                        LIMIT 0, 1;";
     private const string ChangeLogInsertQuery = "INSERT INTO `ChangeLog` (`Version`, `Number`, `ApplyDate`, `Error`) VALUES (?Version, ?Number, NOW(), ?Error);";
     private const string ChangeLogDeleteQuery = "DELETE FROM `ChangeLog` WHERE `Version`= ?Version AND Number = ?Number;";
 
