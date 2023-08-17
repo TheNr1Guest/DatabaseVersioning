@@ -38,25 +38,23 @@ public class ChangeScriptProvider
                     {
                         var changeScriptFileName = Path.GetFileNameWithoutExtension(changeScriptFile.FullName);
 
-                        if (int.TryParse(changeScriptFileName, out var changeScriptNumber))
+                        if (!int.TryParse(changeScriptFileName, out var changeScriptNumber))
                         {
-                            if (version == latestVersion && changeScriptNumber > latestChangeScriptNumber || version != latestVersion)
+                            throw new InvalidChangeScriptNumberException(changeScriptFileName);
+                        }
+
+                        if (version == latestVersion && changeScriptNumber > latestChangeScriptNumber || version != latestVersion)
+                        {
+                            changeScripts.Add(new ChangeScript
                             {
-                                changeScripts.Add(new ChangeScript
-                                {
-                                    Version = version,
-                                    Number = changeScriptNumber,
-                                    Content = File.ReadAllText(changeScriptFile.FullName),
-                                });
-                            }
-                            else
-                            {
-                                _logger.LogInformation("Ignoring change script #{ChangeScriptNumber} of version {Version}", changeScriptNumber, version);
-                            }
+                                Version = version,
+                                Number = changeScriptNumber,
+                                Content = File.ReadAllText(changeScriptFile.FullName),
+                            });
                         }
                         else
                         {
-                            throw new InvalidChangeScriptNumberException(changeScriptFileName);
+                            _logger.LogInformation("Ignoring change script #{ChangeScriptNumber} of version {Version}", changeScriptNumber, version);
                         }
                     }
                 }
