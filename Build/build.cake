@@ -2,9 +2,9 @@
 #load urls.cake
 #load projects.cake
 
-#addin nuget:?package=Cake.FileHelpers&version=5.0.0
+#addin nuget:?package=Cake.FileHelpers&version=6.1.3
 
-#tool "nuget:?package=OctopusTools&version=9.0.0" 
+#tool "nuget:?package=OctopusTools&version=9.1.7" 
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
