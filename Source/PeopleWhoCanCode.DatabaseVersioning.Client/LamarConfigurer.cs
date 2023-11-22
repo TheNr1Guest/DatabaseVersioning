@@ -8,7 +8,7 @@ namespace PeopleWhoCanCode.DatabaseVersioning.Client;
 
 public static class LamarConfigurer
 {
-    private static IContainer Container = null!;
+    private static Container Container = null!;
 
     public static void Initialize(string? connectionString)
     {
